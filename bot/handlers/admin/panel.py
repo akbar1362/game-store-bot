@@ -6,7 +6,7 @@ from telegram.ext import ContextTypes
 
 from bot.database import async_session
 from bot.services.admin_service import AdminService
-from bot.keyboards.admin_kb import get_admin_panel_keyboard, get_admin_stats_keyboard
+from bot.keyboards.admin_kb import get_admin_panel_keyboard
 from bot.config.messages import get_admin_panel_message, get_admin_stats_message
 
 
