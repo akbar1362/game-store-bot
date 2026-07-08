@@ -33,7 +33,17 @@ class GameService:
         query = select(Game).where(Game.is_active == is_active)
 
         if platform:
-            query = query.where(Game.platforms.ilike(f"%{platform}%"))
+            if platform.lower() == "playstation":
+                query = query.where(
+                    or_(
+                        Game.platforms.ilike("%PS5%"),
+                        Game.platforms.ilike("%PS4%"),
+                    )
+                )
+            elif platform.lower() == "xbox":
+                query = query.where(Game.platforms.ilike("%Xbox%"))
+            else:
+                query = query.where(Game.platforms.ilike(f"%{platform}%"))
 
         if category:
             query = query.where(Game.category == category)
@@ -80,7 +90,17 @@ class GameService:
         query = select(func.count(Game.id)).where(Game.is_active == is_active)
 
         if platform:
-            query = query.where(Game.platforms.ilike(f"%{platform}%"))
+            if platform.lower() == "playstation":
+                query = query.where(
+                    or_(
+                        Game.platforms.ilike("%PS5%"),
+                        Game.platforms.ilike("%PS4%"),
+                    )
+                )
+            elif platform.lower() == "xbox":
+                query = query.where(Game.platforms.ilike("%Xbox%"))
+            else:
+                query = query.where(Game.platforms.ilike(f"%{platform}%"))
         if category:
             query = query.where(Game.category == category)
         if search:
