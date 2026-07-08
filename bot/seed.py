@@ -3,8 +3,41 @@ Seed script to add sample games to the database
 Run: python -m bot.seed
 """
 import asyncio
-from bot.database import init_db, async_session
-from bot.services.game_service import GameService
+import os
+from pathlib import Path
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import DeclarativeBase
+
+# Setup paths
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_DIR = BASE_DIR / "bot" / "database"
+DB_DIR.mkdir(parents=True, exist_ok=True)
+DB_PATH = DB_DIR / "store.db"
+DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
+
+print(f"Database path: {DB_PATH}")
+print(f"Database exists: {DB_PATH.exists()}")
+
+# Setup engine
+engine = create_async_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
+async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+# Import models
+from bot.models.user import User
+from bot.models.game import Game
+from bot.models.order import Order, OrderItem
+from bot.models.review import Review
+from bot.models.favorite import Favorite
+from bot.models.wallet import WalletTransaction
+from bot.models.discount import DiscountCode
+from bot.models.ticket import Ticket, TicketMessage
+from bot.models.banner import Banner
+from bot.models.cart import Cart, CartItem
 
 
 GAMES = [
@@ -54,20 +87,6 @@ GAMES = [
         "meta_score": 97,
         "release_date": "2013-09-17",
         "is_bestseller": True,
-    },
-    {
-        "name": "FIFA 24",
-        "description": "بازی فوتبال محبوب با تیم‌های لیگ برتر ایران و جهان",
-        "category": "sports",
-        "platforms": "PS5, Xbox Series X, PS4, Xbox One",
-        "version": "standard",
-        "price": 2200000,
-        "discount_price": 1500000,
-        "discount_percent": 32,
-        "stock_status": "in_stock",
-        "age_rating": "3+",
-        "meta_score": 79,
-        "release_date": "2023-09-29",
     },
     {
         "name": "God of War Ragnarök",
@@ -203,21 +222,6 @@ GAMES = [
         "release_date": "2020-12-10",
     },
     {
-        "name": "Fortnite",
-        "description": "بازی رایگان بتل رویال محبوب جهان",
-        "category": "online",
-        "platforms": "PS5, Xbox Series X, PS4, Xbox One, Nintendo Switch",
-        "version": "standard",
-        "price": 0,
-        "discount_price": 0,
-        "discount_percent": 0,
-        "stock_status": "in_stock",
-        "age_rating": "12+",
-        "meta_score": 80,
-        "release_date": "2017-07-25",
-        "is_bestseller": True,
-    },
-    {
         "name": "Minecraft",
         "description": "بازی خلاقانه ساخت و ساز در دنیای بلوکی",
         "category": "kids",
@@ -290,6 +294,21 @@ GAMES = [
         "release_date": "2023-06-06",
     },
     {
+        "name": "Fortnite",
+        "description": "بازی رایگان بتل رویال محبوب جهان",
+        "category": "online",
+        "platforms": "PS5, Xbox Series X, PS4, Xbox One, Nintendo Switch",
+        "version": "standard",
+        "price": 0,
+        "discount_price": 0,
+        "discount_percent": 0,
+        "stock_status": "in_stock",
+        "age_rating": "12+",
+        "meta_score": 80,
+        "release_date": "2017-07-25",
+        "is_bestseller": True,
+    },
+    {
         "name": "Counter-Strike 2",
         "description": "بازی شوتر رقابتی محبوب ای‌اسپورت",
         "category": "shooter",
@@ -310,21 +329,30 @@ GAMES = [
 
 async def seed():
     """Add sample games to database"""
-    await init_db()
+    # Create tables
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    print("Tables created.")
 
+    # Check existing games
+    from sqlalchemy import select, func
     async with async_session() as session:
-        service = GameService(session)
+        result = await session.execute(select(func.count(Game.id)))
+        count = result.scalar() or 0
+        print(f"Existing games: {count}")
 
-        existing = await service.get_all_games(limit=1)
-        if existing:
+        if count > 0:
             print("Database already has games. Skipping seed.")
             return
 
+        # Add games
         for game_data in GAMES:
-            game = await service.create_game(**game_data)
-            print(f"Added: {game.name} - {game.price:,} Toman")
+            game = Game(**game_data)
+            session.add(game)
+            print(f"Adding: {game_data['name']} - {game_data['price']:,} Toman")
 
-    print(f"\nDone! {len(GAMES)} games added successfully.")
+        await session.commit()
+        print(f"\nDone! {len(GAMES)} games added successfully.")
 
 
 if __name__ == "__main__":
