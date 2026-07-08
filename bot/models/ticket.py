@@ -2,7 +2,7 @@
 Ticket model for support
 """
 from datetime import datetime
-from sqlalchemy import Column, Integer, BigInteger, String, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, BigInteger, String, DateTime, Text, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from bot.database import Base
 
@@ -31,7 +31,7 @@ class TicketMessage(Base):
     ticket_id = Column(Integer, ForeignKey("tickets.id"), nullable=False)
     sender_id = Column(BigInteger, nullable=False)
     message = Column(Text, nullable=False)
-    is_admin = Column(bool, default=False)
+    is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     ticket = relationship("Ticket", back_populates="messages")
