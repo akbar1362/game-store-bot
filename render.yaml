@@ -15,4 +15,4 @@ services:
       - key: STORE_DESCRIPTION
         value: "فروشگاه تخصصی بازی‌های Xbox و PlayStation"
       - key: PYTHON_VERSION
-        value: "3.13.0"
+        value: "3.12.7"
