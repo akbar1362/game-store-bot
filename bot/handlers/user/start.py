@@ -26,9 +26,8 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             last_name=user.last_name,
         )
 
-    await update.message.reply_photo(
-        photo=None,
-        caption=get_welcome_message(),
+    await update.message.reply_text(
+        text=get_welcome_message(),
         reply_markup=get_welcome_keyboard(),
         parse_mode="HTML",
     )
