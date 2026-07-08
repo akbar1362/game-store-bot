@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: game-store-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn web:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: STORE_NAME
+        value: "GameStore Pro"
+      - key: STORE_DESCRIPTION
+        value: "فروشگاه تخصصی بازی‌های Xbox و PlayStation"
+      - key: PYTHON_VERSION
+        value: "3.13.0"

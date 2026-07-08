@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.pyo
+.env
+.git
+.gitignore
+*.md
+bot/logs/*
+bot/backup/*
+bot/database/*.db
+.DS_Store
+venv/
+.venv/

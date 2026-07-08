@@ -1,0 +1,13 @@
+# Game Store Bot - Dependencies
+
+python-telegram-bot==21.6
+SQLAlchemy==2.0.36
+aiosqlite==0.20.0
+python-dotenv==1.0.1
+APScheduler==3.10.4
+aiofiles==24.1.0
+loguru==0.7.3
+qrcode[pil]==8.0
+Pillow==11.0.0
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
